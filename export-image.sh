@@ -3,10 +3,26 @@
 pwd=$(pwd -P)
 
 image=registry.opensuse.org/opensuse/leap:latest
+#image=registry.opensuse.org/opensuse/tumbleweed
+#image=registry.fedoraproject.org/fedora:rawhide
+#image=docker.io/arm32v7/ubuntu:24.04
 
-podman pull --arch arm $image
+keep=false
 
-tmpdir=$(mktemp -d)
+arch=
+#arch="--arch arm"
+#arch="--arch ppc64le"
+
+podman pull $arch $image
+
+if ! $keep; then
+    tmpdir=$(mktemp -d)
+else
+    tmpdir=$pwd/local.tmpdir
+    rm -Rf $tmpdir
+    mkdir -p $tmpdir
+fi
+
 cd $tmpdir
 
 tar=$tmpdir/tmp.tar
@@ -27,4 +43,6 @@ cd $sysroot
 
 tar xvf $tar2
 
-rm -Rf $tmpdir
+if ! $keep; then
+    rm -Rf $tmpdir
+fi
